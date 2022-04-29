@@ -2,20 +2,44 @@ const bcryptjs = require('bcryptjs');
 const { response } = require('express');
 const Usuario = require('../models/usuario');
 
-const usuariosGet = (req, res = response) => {
-	const { q, nombre } = req.query;
+const usuariosGet = async (req, res = response) => {
+	const query = { estado: true };
+	const { limite = 5, desde = 0 } = req.query;
+	// const usuarios = await Usuario.find({ query }).skip(Number(desde)).limit(Number(limite));
+
+	// const total = await Usuario.countDocuments({ query });
+
+	const [total, usuarios] = await Promise.all([
+		Usuario.countDocuments(query),
+		Usuario.find(query).skip(Number(desde)).limit(Number(limite)),
+	]);
+
 	res.json({
-		msg: 'get API - controlador',
-		q,
-		nombre,
+		total,
+		usuarios,
 	});
 };
 
-const usuariosPut = (req, res) => {
-	const id = req.params.id;
+const usuariosPut = async (req, res = response) => {
+	const { id } = req.params;
+	const { _id, password, google, correo, ...resto } = req.body;
+	// console.log('Estos son los req.params', req.params);
+	// console.log('Estos son los req.body', req.body);
+	//Validar contra DB
+	if (password) {
+		const salt = bcryptjs.genSaltSync();
+		resto.password = bcryptjs.hashSync(password, salt);
+	}
+	const usuario = await Usuario.findOneAndUpdate(id, resto);
+
 	res.json({
-		msg: 'put API - controlador',
-		id,
+		usuario,
+	});
+};
+
+const usuariosPatch = (req, res = response) => {
+	res.json({
+		msg: 'patch API - controlador',
 	});
 };
 
@@ -23,19 +47,10 @@ const usuariosPost = async (req, res) => {
 	const { nombre, correo, password, rol } = req.body;
 	const nuevoUsuario = new Usuario({ nombre, correo, password, rol });
 
-	//Verificar si el correo existe
-	const existeEmail = await Usuario.findOne({ correo: correo });
-	if (existeEmail) {
-		return res.status(400).json({
-			msg: 'Ese correo ya se encuentra registrado.',
-		});
-	}
-	//Encriptar la contraseña
-	const salt = bcryptjs.genSaltSync();
+	const salt = bcryptjs.genSaltSync(); //Encriptar la contraseña
 	nuevoUsuario.password = bcryptjs.hashSync(password, salt);
 
-	//Guardar en DB
-	await nuevoUsuario.save();
+	await nuevoUsuario.save(); //Guardar en DB
 	res.json({
 		nuevoUsuario,
 	});
@@ -44,12 +59,6 @@ const usuariosPost = async (req, res) => {
 const usuariosDelete = (req, res) => {
 	res.json({
 		msg: 'delete API - controlador',
-	});
-};
-
-const usuariosPatch = (req, res) => {
-	res.json({
-		msg: 'patch API - controlador',
 	});
 };
 
