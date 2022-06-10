@@ -1,48 +1,48 @@
-const express = require('express');
-const cors = require('cors');
-const { dbConnection } = require('../database/config');
+const express = require("express");
+const cors = require("cors");
+const { dbConnection } = require("../database/config");
 require;
 
 class Server {
-  constructor() {
-    this.app = express();
-    this.port = process.env.PORT;
-    this.usuariosPath = '/api/usuarios';
-    this.authPath = '/api/auth';
+	constructor() {
+		this.app = express();
+		this.port = process.env.PORT;
+		this.usuariosPath = "/api/usuarios";
+		this.authPath = "/api/auth";
 
-    //Conectar a DB
-    this.conectarDB();
+		//Conectar a DB
+		this.conectarDB();
 
-    //Middlewares
-    this.middlewares();
-    //Rutas
-    this.routes();
-  }
+		//Middlewares
+		this.middlewares();
+		//Rutas
+		this.routes();
+	}
 
-  async conectarDB() {
-    await dbConnection();
-  }
+	async conectarDB() {
+		await dbConnection();
+	}
 
-  middlewares() {
-    //CORS
-    this.app.use(cors());
+	middlewares() {
+		//CORS
+		this.app.use(cors());
 
-    //Lectura y parseo del body
-    this.app.use(express.json());
+		//Lectura y parseo del body
+		this.app.use(express.json());
 
-    //Directorio publico
-    this.app.use(express.static('public'));
-  }
-  routes() {
-    this.app.use(this.authPath, require('../routes/auth'));
-    this.app.use(this.usuariosPath, require('../routes/usuarios'));
-  }
+		//Directorio publico
+		this.app.use(express.static("public"));
+	}
+	routes() {
+		this.app.use(this.authPath, require("../routes/auth"));
+		this.app.use(this.usuariosPath, require("../routes/usuarios"));
+	}
 
-  listen() {
-    this.app.listen(this.port, () => {
-      console.log('Servidor corriendo en puerto', this.port);
-    });
-  }
+	listen() {
+		this.app.listen(this.port, () => {
+			console.log("Servidor corriendo en puerto", this.port);
+		});
+	}
 }
 
 module.exports = Server;
