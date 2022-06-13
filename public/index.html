@@ -11,8 +11,9 @@
 		<div
 			id="g_id_onload"
 			data-client_id="918445774321-t91qdv7hm9bbgvg0dp4vc7os6ti3795c.apps.googleusercontent.com"
-			data-auto_prompt="false"
 			data-callback="handleCredentialResponse"
+			data-auto_prompt="false"
+			data-auto_select="true"
 		></div>
 		<div
 			class="g_id_signin"
@@ -24,12 +25,13 @@
 			data-logo_alignment="left"
 		></div>
 
-		<script src="https://accounts.google.com/gsi/client" async defer></script>
+		<button id="google_signout">Sign Out</button>
+
+		<hr />
+		<h1>One Tap</h1>
+
 		<script>
 			function handleCredentialResponse(response) {
-				//Google Token: ID_TOKEN
-				// console.log('id_token', response.credential);
-
 				const body = { id_token: response.credential };
 
 				fetch('http://localhost:8080/api/auth/google', {
@@ -42,9 +44,23 @@
 					.then((resp) => resp.json())
 					.then((resp) => {
 						console.log(resp);
+						localStorage.setItem('email', resp.usuario.correo);
 					})
 					.catch(console.warn);
 			}
+
+			const button = document.getElementById('google_signout');
+			button.onclick = async () => {
+				console.log(google.accounts.id);
+				google.accounts.id.disableAutoSelect();
+				google.accounts.id.revoke(localStorage.getItem('email'), (done) => {
+					localStorage.clear(); //Limpia el correo guardado en el LocalStorage
+					location.reload(); //Recarga la página y vacia cualquier cosa que tengamos en el estado de nuestra aplicación
+					console.log('Sign out');
+				});
+			};
 		</script>
+
+		<script src="https://accounts.google.com/gsi/client" async defer></script>
 	</body>
 </html>
