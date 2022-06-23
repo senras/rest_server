@@ -1,6 +1,5 @@
 const { Router, response } = require('express');
 const { check } = require('express-validator');
-const Categoria = require('../models/categoria');
 const {
 	crearCategoria,
 	actualizarCategoria,
@@ -33,14 +32,8 @@ router.get(
 
 //Crear categoria - privada - cualquier persona con un token valido
 router.post(
-	'/:id',
-	[
-		validarJWT,
-		check('id', 'No es un id de Mongo valido').isMongoId(),
-		check('id').custom(existeCategoriaPorId),
-		check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-		validarCampos,
-	],
+	'/',
+	[validarJWT, check('nombre', 'El nombre es obligatorio').not().isEmpty(), validarCampos],
 	crearCategoria,
 );
 
@@ -51,7 +44,6 @@ router.put(
 	[
 		validarJWT,
 		check('id', 'No es un id de Mongo valido').isMongoId(),
-		check('id', 'El id es obligatorio').not().isEmpty(),
 		check('id').custom(existeCategoriaPorId),
 		check('nombre', 'El nombre es obligatorio').not().isEmpty(),
 		validarCampos,

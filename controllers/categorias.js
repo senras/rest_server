@@ -24,11 +24,11 @@ const crearCategoria = async (req, res = response) => {
 const obtenerCategorias = async (req, res = response) => {
 	const query = { estado: true }; //Para buscar todas las categorias con estado true
 	const { limite = 5, desde = 0 } = req.query;
-	const categorias = await Categoria.find({ query })
+	const categorias = await Categoria.find(query)
 		.populate('usuario', 'nombre')
 		.skip(Number(desde))
 		.limit(Number(limite));
-	const total = await Categoria.countDocuments({ query });
+	const total = await Categoria.countDocuments(query);
 
 	res.json({
 		total,
