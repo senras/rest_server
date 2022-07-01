@@ -52,12 +52,15 @@ const buscarProductos = async (termino = '', res = response) => {
 			return res.json({
 				results: productoPorID ? [productoPorID] : [],
 			});
-		} else {
-			const categoriaPorID = await Categoria.findById(termino);
-			const productosPorCategoria = await Categoria.find()
-				.populate({ path: 'categoria', match: { nombre: categoriaPorID.nombre } })
-				.populate('usuario', 'nombre');
-			res.json({
+		}
+		const categoriaPorID = await Categoria.findById(termino);
+		if (categoriaPorID) {
+			const productosPorCategoria = await Producto.find()
+				// .populate('usuario', 'nombre')
+				.populate({ path: 'categoria', match: { _id: termino } })
+				.exec();
+
+			return res.json({
 				results: productosPorCategoria,
 			});
 		}
@@ -67,7 +70,7 @@ const buscarProductos = async (termino = '', res = response) => {
 		.populate('categoria', 'nombre')
 		.populate('usuario', 'nombre');
 
-	res.json({
+	return res.json({
 		results: productos,
 	});
 };
