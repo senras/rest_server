@@ -52,9 +52,11 @@ const buscarProductos = async (termino = '', res = response) => {
 			return res.json({
 				results: productoPorID ? [productoPorID] : [],
 			});
-		} else {
-			const categoriaPorID = await Categoria.findById(termino);
-			const productosPorCategoria = await Categoria.find()
+		}
+		const categoriaPorID = await Categoria.findById(termino);
+
+		if (categoriaPorID) {
+			const productosPorCategoria = await Producto.find()
 				.populate({ path: 'categoria', match: { nombre: categoriaPorID.nombre } })
 				.populate('usuario', 'nombre');
 			res.json({
@@ -62,6 +64,7 @@ const buscarProductos = async (termino = '', res = response) => {
 			});
 		}
 	}
+
 	const regex = new RegExp(termino, 'i');
 	const productos = await Categoria.find({ nombre: regex, estado: true })
 		.populate('categoria', 'nombre')
