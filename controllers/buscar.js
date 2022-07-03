@@ -45,32 +45,30 @@ const buscarCategorias = async (termino = '', res = response) => {
 const buscarProductos = async (termino = '', res = response) => {
 	const esMongoID = ObjectId.isValid(termino);
 	if (esMongoID) {
-		const productoPorID = await Producto.findById(termino)
-			.populate('categoria', 'nombre')
-			.populate('usuario', 'nombre');
+		const productoPorID = await Producto.findById(termino).populate('categoria', 'nombre');
 		if (productoPorID) {
 			return res.json({
 				results: productoPorID ? [productoPorID] : [],
 			});
 		}
-		const categoriaPorID = await Categoria.findById(termino);
 
-		if (categoriaPorID) {
-			const productosPorCategoria = await Producto.find()
-				.populate({ path: 'categoria', match: { nombre: categoriaPorID.nombre } })
-				.populate('usuario', 'nombre');
-			res.json({
-				results: productosPorCategoria,
-			});
-		}
+		const productos = await Producto.find({ estado: true }).populate({
+			path: 'categoria',
+			match: { _id: termino },
+		});
+
+		const productosPorCategoria = productos.filter((producto) => producto.categoria);
+		return res.json({
+			results: productosPorCategoria,
+		});
 	}
 
 	const regex = new RegExp(termino, 'i');
-	const productos = await Categoria.find({ nombre: regex, estado: true })
+	const productos = await Producto.find({ nombre: regex, estado: true })
 		.populate('categoria', 'nombre')
 		.populate('usuario', 'nombre');
 
-	res.json({
+	return res.json({
 		results: productos,
 	});
 };

@@ -25,6 +25,7 @@ const ProductoSchema = Schema({
 		ref: 'Categoria',
 		required: true,
 	},
+
 	descripcion: {
 		type: String,
 	},
