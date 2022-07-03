@@ -6,7 +6,7 @@ require;
 class Server {
 	constructor() {
 		this.app = express();
-		this.port = process.env.PORT;
+		this.port = process.env.PORT || 8000;
 		this.paths = {
 			auth: '/api/auth',
 			buscar: '/api/buscar',
@@ -47,9 +47,7 @@ class Server {
 	}
 
 	listen() {
-		this.app.listen(this.port, () => {
-			console.log('Servidor corriendo en puerto', this.port);
-		});
+		this.app.listen(this.port, () => console.log('Servidor corriendo en puerto', this.port));
 	}
 }
 
